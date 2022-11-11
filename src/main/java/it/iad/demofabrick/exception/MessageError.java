@@ -7,7 +7,9 @@ import lombok.Data;
 @Data
 public class MessageError {
 	private String statusCode;
+	
 	private Date timestamp;
+	
 	private String message;
 	
 	public MessageError() {}

@@ -30,16 +30,17 @@ public class DemoFabrickController {
 	@Autowired
 	private IFabrickService fabrickService;
 	
+	
 	@GetMapping("/balance/{accountId}")
 	public ResponseEntity<String> getBalance(@PathVariable("accountId") Long accountId) throws BalanceException{
 		logger.info("call getBalance with parameter: " + accountId);
-		return new ResponseEntity<String>(fabrickService.readBalance(accountId), HttpStatus.OK);
+		return new ResponseEntity<String>(String.valueOf(fabrickService.readBalance(accountId).getAvailableBalance()), HttpStatus.OK);
 	}
 	
 	@PostMapping("/transfer/{accountId}/")
 	public ResponseEntity<String> saveTransfer(@PathVariable("accountId") Long accountId, @Valid @RequestBody Transfer transfer) throws BalanceException{
 		logger.debug("call saveTransfer with parameter: " + transfer);
-		return new ResponseEntity<String>(fabrickService.saveTransfer(accountId, transfer), HttpStatus.OK);
+		return new ResponseEntity<String>(fabrickService.saveTransfer(accountId, transfer).getStatus(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/list-transaction")
@@ -47,6 +48,7 @@ public class DemoFabrickController {
 												      @RequestParam(required = true) String fromAccountingDate,
 												      @RequestParam(required = true) String toAccountingDate) {
 		logger.debug("call getTransactionList with parameter accountId: " + accountId);
-		return new ResponseEntity<List<Transaction>>(fabrickService.listTransaction(accountId, fromAccountingDate, toAccountingDate), HttpStatus.OK);
+		return new ResponseEntity<List<Transaction>>(fabrickService.listTransaction(accountId, fromAccountingDate, toAccountingDate).getList(), HttpStatus.OK);
 	}
+	
 }

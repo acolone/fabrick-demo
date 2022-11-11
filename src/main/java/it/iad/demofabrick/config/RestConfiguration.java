@@ -50,7 +50,8 @@ public class RestConfiguration {
     @Bean
     public HttpHeaders headers() {
     	HttpHeaders headers = new HttpHeaders();
-        headers.add("api-key", apiKey);
+        headers.add("Content-Type", "application/json");
+    	headers.add("api-key", apiKey);
         headers.add("Auth-Schema", authSchema);
         headers.add("x-Time-Zone","Europe/Rome");
         return headers;

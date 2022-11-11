@@ -6,10 +6,10 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class TransferAPI implements Serializable{
+public class TransferResult implements Serializable{
 	private static final long serialVersionUID = 5351611196321185042L;
 	
-	private String transferId;
+	private String moneyTransferId;
     private String status;
     private String direction;
     private Creditor creditor;

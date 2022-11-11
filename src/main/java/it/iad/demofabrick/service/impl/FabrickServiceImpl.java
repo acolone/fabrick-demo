@@ -1,36 +1,37 @@
 package it.iad.demofabrick.service.impl;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import it.iad.demofabrick.exception.BalanceException;
-import it.iad.demofabrick.model.BalanceAPI;
-import it.iad.demofabrick.model.ListTransactionAPI;
-import it.iad.demofabrick.model.Transaction;
+import it.iad.demofabrick.model.Balance;
+import it.iad.demofabrick.model.ListTransaction;
+import it.iad.demofabrick.model.Result;
 import it.iad.demofabrick.model.Transfer;
-import it.iad.demofabrick.model.TransferAPI;
+import it.iad.demofabrick.model.TransferResult;
 import it.iad.demofabrick.service.IFabrickService;
 
 @Service
-public class FabrickServiceImpl implements IFabrickService {
+public class FabrickServiceImpl extends ResponseEntityExceptionHandler implements IFabrickService {
 	private static final Logger logger = LoggerFactory.getLogger(FabrickServiceImpl.class);
 	
-	@Autowired
-    private Environment env;
+	@Value("${demofabrick.api.url}")
+    private String apiUrl;
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -40,20 +41,21 @@ public class FabrickServiceImpl implements IFabrickService {
 	
 
 	@Override
-	public String readBalance(Long accountId) throws BalanceException{
+	public Balance readBalance(Long accountId) throws BalanceException{
 		logger.info("readBalance with parameter: " + accountId);
-//		if (accountId == null) {
-//			throw new BalanceException("401","Parametro 'accountId' è obbligatorio nella chiamata al servizio");
-//		}
-		String apiUrlBalance = env.getProperty("demofabrick.api.url") + accountId + "/balance";
-		String availableBalance = null;
+		if (accountId == null) {
+			throw new BalanceException("422",HttpStatus.UNPROCESSABLE_ENTITY,"Parametro 'accountId' mancante.");
+		}
+		String apiUrlBalance = apiUrl.concat(String.valueOf(accountId)).concat("/balance");
+		Balance result = null;
         try {
-			HttpEntity<BalanceAPI> httpEntity = new HttpEntity<BalanceAPI>(headers);
+			HttpEntity<Result<Balance>> httpEntity = new HttpEntity<Result<Balance>>(headers);
 			
-	        ResponseEntity<BalanceAPI> balanceEntity = restTemplate.exchange(apiUrlBalance, HttpMethod.GET, httpEntity, BalanceAPI.class);
+			ResponseEntity<Result<Balance>> balanceEntity = restTemplate.exchange(apiUrlBalance, HttpMethod.GET, httpEntity, 
+					new ParameterizedTypeReference<Result<Balance>>() {});
 	        int statusCode = balanceEntity.getStatusCodeValue();
 	        if(statusCode == 200) {
-	        	availableBalance = String.valueOf(balanceEntity.getBody().getPayload().getAvailableBalance());
+	        	result = balanceEntity.getBody().getPayload();
 	        }else {
 	        	throw new BalanceException("204",HttpStatus.NO_CONTENT,"Nessun dato trovato per accountId: " + accountId); 
 	        }
@@ -62,39 +64,53 @@ public class FabrickServiceImpl implements IFabrickService {
         }catch (Exception e) {
         	throw new BalanceException("500",HttpStatus.INTERNAL_SERVER_ERROR,"Errore generico nella chiamata al servizio - " + e.getMessage()); 
 		}
-		return availableBalance;
+		return result;
 	}
-
+	
 	@Override
-	public String saveTransfer(Long accountId, Transfer transfer) throws BalanceException{
+	public TransferResult saveTransfer(Long accountId, Transfer transfer) throws BalanceException{
 		logger.info("saveTransfer for account code: " + transfer.getCreditor().getAccount().getAccountCode());
-		String apiUrlTransfer = env.getProperty("demofabrick.api.url") + accountId + "/payments/money-transfers";
-		String status = null;
+		if (accountId == null) {
+			throw new BalanceException("422",HttpStatus.UNPROCESSABLE_ENTITY,"Parametro 'accountId' mancante.");
+		}
+		String apiUrlTransfer = apiUrl.concat(String.valueOf(accountId)).concat("/payments/money-transfers");
+		TransferResult result = null;
 		try {
 			HttpEntity<Transfer> httpEntity = new HttpEntity<Transfer>(transfer, headers);
 			
-			ResponseEntity<TransferAPI> transferEntity = restTemplate.exchange(apiUrlTransfer, HttpMethod.POST, httpEntity, TransferAPI.class);
-	        status = transferEntity.getBody().getStatus();
-	        
+	        ResponseEntity<Result<TransferResult>> transferEntity = restTemplate.exchange(apiUrlTransfer, HttpMethod.POST, httpEntity, 
+	        		new ParameterizedTypeReference<Result<TransferResult>>() {});
+	        result = transferEntity.getBody().getPayload();
 		}catch(BadRequest br){ 
             throw new BalanceException("API000",HttpStatus.BAD_REQUEST, br.getMessage());
         }
 		catch(InternalServerError is){
             throw new BalanceException("API000",HttpStatus.INTERNAL_SERVER_ERROR,"Errore durante l'operazione - " + is.getMessage());
         }
-		return status;
+		return result;
 	}
 
 	@Override
-	public List<Transaction> listTransaction(Long accountId, String fromAccountingDate, String toAccountingDate) {
+	public ListTransaction listTransaction(Long accountId, String fromAccountingDate, String toAccountingDate) {
 		logger.info("listTransaction with parameter: " + accountId);
-		String apiUrlTransactionList = env.getProperty("demofabrick.api.url") + accountId + "/transactions?fromAccountingDate="+fromAccountingDate+"&toAccountingDate="+toAccountingDate;
+		if (accountId == null) {
+			throw new BalanceException("422",HttpStatus.UNPROCESSABLE_ENTITY,"Parametro 'accountId' mancante.");
+		}
+		if(!StringUtils.hasLength(fromAccountingDate)){
+			throw new BalanceException("422",HttpStatus.UNPROCESSABLE_ENTITY,"Parametro 'fromAccountingDate' mancante.");
+		}
+		if(!StringUtils.hasLength(toAccountingDate)){
+			throw new BalanceException("422",HttpStatus.UNPROCESSABLE_ENTITY,"Parametro 'toAccountingDate' mancante.");
+		}
+		String queryString = "/transactions?fromAccountingDate=".concat(fromAccountingDate).concat("&toAccountingDate=").concat(toAccountingDate);
+		String apiUrlTransactionList = apiUrl.concat(String.valueOf(accountId)).concat(queryString);
+		
 		try {
-			HttpEntity<ListTransactionAPI> httpEntity = new HttpEntity<ListTransactionAPI>(headers);
+			HttpEntity<Result<ListTransaction>> httpEntity = new HttpEntity<Result<ListTransaction>>(headers);
 			
-	        ResponseEntity<ListTransactionAPI> listTransactionEntity = restTemplate.exchange(apiUrlTransactionList, HttpMethod.GET, httpEntity, ListTransactionAPI.class);
-	        
-	        return listTransactionEntity.getBody().getPayload().getList();
+	        ResponseEntity<Result<ListTransaction>> listTransactionEntity = restTemplate.exchange(apiUrlTransactionList, HttpMethod.GET, httpEntity, 
+	        		new ParameterizedTypeReference<Result<ListTransaction>>() {});
+	        return listTransactionEntity.getBody().getPayload();
         }catch(HttpClientErrorException ex) {
         	throw new BalanceException("403",HttpStatus.FORBIDDEN,"Nessun dato trovato per accountId: " + accountId);
         }catch (Exception e) {
