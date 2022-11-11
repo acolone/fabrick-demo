@@ -22,8 +22,8 @@ public class RestConfiguration {
     @Value("${demofabrick.http.proxy.timeout}")
     private int proxyTimeout;
     
-    @Value("${demofabrick.http.usedefault}")
-    private String useDefault;
+    @Value("${demofabrick.http.useproxy}")
+    private String useProxy;
     
     @Value("${demofabrick.api-key}")
     private String apiKey;
@@ -34,7 +34,7 @@ public class RestConfiguration {
 	
     @Bean
     public RestTemplate restTemplate() {
-    	if(useDefault.equals("true")){
+    	if(useProxy.equals("false")){
     		return new RestTemplate();
 		}else{
 	        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();

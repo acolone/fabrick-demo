@@ -1,7 +1,11 @@
 package it.iad.demofabrick;
 
-import java.math.BigDecimal;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+
+import org.json.JSONException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -9,19 +13,16 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import it.iad.demofabrick.model.Balance;
-import it.iad.demofabrick.model.ListTransaction;
-import it.iad.demofabrick.model.Result;
-
+@ContextConfiguration(classes = DemoFabrickApplication.class)
 @SpringBootTest()
 @TestMethodOrder(OrderAnnotation.class)
 class DemoFabrickApplicationTests extends ResponseEntityExceptionHandler{
@@ -29,38 +30,89 @@ class DemoFabrickApplicationTests extends ResponseEntityExceptionHandler{
 	@Value("${demofabrick.api.url}")
     private String apiUrl;
 	
-	@Autowired
-	private RestTemplate restTemplate;
+	@Value("${demofabrick.test.accountId}")
+    private String accountId;
+	
+	@Value("${demofabrick.test.fromaccountingdate}")
+    private String fromAccountingDate;
+	
+	@Value("${demofabrick.test.toaccountingdate}")
+    private String toAccountingDate;
+	
+	private MockMvc mvc;
 	
 	@Autowired
-	private HttpHeaders headers;
+	private WebApplicationContext wac;
 	
-	@Test
-	void contextLoads() {
+	@BeforeEach
+	public void setUp() throws JSONException, IOException {
+		mvc = MockMvcBuilders.webAppContextSetup(wac).build();
 	}
 	
 	@Test
 	@Order(1)
-	public void testReadBalance() {
-		String apiUrlBalance = apiUrl.concat("14537780/balance");
-        HttpEntity<Result<Balance>> httpEntity = new HttpEntity<Result<Balance>>(headers);
-        
-        ResponseEntity<Result<Balance>> response = restTemplate.exchange(apiUrlBalance, HttpMethod.GET, httpEntity, 
-        		new ParameterizedTypeReference<Result<Balance>>() {});
-        BigDecimal result = response.getBody().getPayload().getAvailableBalance();
-        System.out.println("testReadBalance:"+String.valueOf(result));
+	public void saldoAccountIdNotFound() throws Exception
+	{
+		setUp();
+		String apiUrlBalance = "/fabrick/balance/8008490000021";
+		MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(apiUrlBalance)
+				.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+		int status = mvcResult.getResponse().getStatus();
 		
+		assertTrue(status == 403);
 	}
 	
 	@Test
 	@Order(2)
-	public void testListTransacion() {
-		String apiUrlTransactionList = apiUrl.concat("14537780/transactions?fromAccountingDate=2022-01-01&toAccountingDate=2022-04-01");
-		HttpEntity<Result<ListTransaction>> httpEntity = new HttpEntity<Result<ListTransaction>>(headers);
+	public void saldoAccountIdFound() throws Exception
+	{
+		String apiUrlBalance = "/fabrick/balance/"+accountId;
+		MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(apiUrlBalance)
+				.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+		int status = mvcResult.getResponse().getStatus();
 		
-		ResponseEntity<Result<ListTransaction>> listTransactionEntity = restTemplate.exchange(apiUrlTransactionList, HttpMethod.GET, httpEntity, 
-        		new ParameterizedTypeReference<Result<ListTransaction>>() {});
-        System.out.println("transaction list: "+listTransactionEntity.getBody().getPayload().getList().size());
+		assertTrue(status == 200);
+	}
+	
+	@Test
+	@Order(3)
+	public void transactionsListOK() throws Exception {
+		setUp();
+		String fromAccountingDate = "2019-01-01";
+		String toAccountingDate = "2019-12-01";
+		String accountIdReqParam = "accountId="+accountId;
+		String fromAccountingDateReqParam = "fromAccountingDate="+fromAccountingDate;
+		String toAccountingDateReqParam = "toAccountingDate="+toAccountingDate;
+		
+		String apiUrlBalance = "/fabrick/list-transaction";
+		String queryString = apiUrlBalance + "?" +accountIdReqParam + "&" +fromAccountingDateReqParam + "&" + toAccountingDateReqParam;
+		
+		MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(queryString)
+				.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		
+		assertTrue(status == 200);
+	}
+	
+	@Test
+	@Order(4)
+	public void transactionsListKO() throws Exception {
+		setUp();
+		Long accountId = 14537781L;
+		String fromAccountingDate = "2019-01-01";
+		String toAccountingDate = "2019-12-01";
+		String accountIdReqParam = "accountId="+accountId;
+		String fromAccountingDateReqParam = "fromAccountingDate="+fromAccountingDate;
+		String toAccountingDateReqParam = "toAccountingDate="+toAccountingDate;
+		
+		String apiUrlBalance = "/fabrick/list-transaction";
+		String queryString = apiUrlBalance + "?" +accountIdReqParam + "&" +fromAccountingDateReqParam + "&" + toAccountingDateReqParam;
+		
+		MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(queryString)
+				.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+		int status = mvcResult.getResponse().getStatus();
+		
+		assertTrue(status == 403 || status == 422 || status == 500);
 	}
 	
 
