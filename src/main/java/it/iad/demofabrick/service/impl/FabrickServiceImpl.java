@@ -129,7 +129,7 @@ public class FabrickServiceImpl extends ResponseEntityExceptionHandler implement
 	        		new ParameterizedTypeReference<Result<TransferResult>>() {});
 	        result = transferEntity.getBody().getPayload();
 		}catch(BadRequest br){ 
-            throw new BalanceException("API000",HttpStatus.BAD_REQUEST, br.getMessage());
+            throw new BalanceException("API000",HttpStatus.BAD_REQUEST, "Errore tecnico  La condizione BP049 non e' prevista per il conto id: " +accountId);
         }
 		catch(InternalServerError is){
             throw new BalanceException("API000",HttpStatus.INTERNAL_SERVER_ERROR,"Errore durante l'operazione - " + is.getMessage());
