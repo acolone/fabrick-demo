@@ -37,6 +37,10 @@ public class RestConfiguration {
     private String authSchema;
 	
 	
+    /**
+     * @return RestTemplate
+     * metodo di configurazione che istanzia il <b>RestTemplate</b> con o senza proxy 
+     */
     @Bean
     public RestTemplate restTemplate() {
     	if(useProxy.equals("false")){
@@ -52,6 +56,10 @@ public class RestConfiguration {
 		}
     }
     
+    /**
+     * @return RestTemplate
+     * metodo di configurazione che istanzia i' <b>HttpHeaders</b> 
+     */
     @Bean
     public HttpHeaders headers() {
     	HttpHeaders headers = new HttpHeaders();

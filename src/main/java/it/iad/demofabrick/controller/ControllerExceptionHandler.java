@@ -27,6 +27,11 @@ import it.iad.demofabrick.exception.ValidateError;
 @ControllerAdvice
 public class ControllerExceptionHandler {
 	
+	/**
+	 * @param ex <b>BalanceException</b>
+	 * @param request
+	 * @return ResponseEntity<ErrorMessage> <i>Errore applicativo</i>
+	 */
 	@ExceptionHandler(BalanceException.class)
 	public ResponseEntity<ErrorMessage> balanceException(BalanceException ex, WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage();
@@ -41,6 +46,10 @@ public class ControllerExceptionHandler {
 		return new ResponseEntity<ErrorMessage>(errorMessage,ex.getStatus());
 	}
 	
+	/**
+	 * @param e <b>MethodArgumentNotValidException</b>
+	 * @return ResponseEntity<ValidateError> <i>lista degli errori in fase di validazione</i>
+	 */
 	@ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ValidateError> argumentNotValidExceptionHandler (MethodArgumentNotValidException e){
         Map<String, String> errors = new HashMap<>();

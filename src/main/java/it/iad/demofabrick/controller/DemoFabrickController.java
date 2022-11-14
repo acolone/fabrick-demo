@@ -36,18 +36,38 @@ public class DemoFabrickController {
 	private IFabrickService fabrickService;
 	
 	
+	/**
+	 * @param accountId <i>id del conto</i>
+	 * @return ResponseEntity<String> <i>il saldo</i>
+	 * metodo richiamato per recuperare il saldo in formato Json del conto passato in input <b>accountId</b>
+	 * @throws BalanceException
+	 */
 	@GetMapping("/balance/{accountId}")
 	public ResponseEntity<String> getBalance(@PathVariable("accountId") Long accountId) throws BalanceException{
 		logger.info("call getBalance with parameter: " + accountId);
 		return new ResponseEntity<String>(String.valueOf(fabrickService.readBalance(accountId).getAvailableBalance()), HttpStatus.OK);
 	}
 	
+	/**
+	 * @param accountId <i>id del conto</i>
+	 * @param transfer <i>oggetto contenente i dati da salvare</i>
+	 * @return ResponseEntity<String> <i>messaggio di avvenuto inserimento o di errore</i>
+	 * metodo richiamato per salvare il bonifico passato in input al servizio.
+	 * @throws BalanceException
+	 */
 	@PostMapping("/transfer/{accountId}/")
 	public ResponseEntity<String> saveTransfer(@PathVariable("accountId") Long accountId, @Valid @RequestBody Transfer transfer) throws BalanceException{
 		logger.debug("call saveTransfer with parameter: " + transfer);
 		return new ResponseEntity<String>(fabrickService.saveTransfer(accountId, transfer).getStatus(), HttpStatus.OK);
 	}
 	
+	/**
+	 * @param accountId <i>id del conto</i>
+	 * @param fromAccountingDate <i>data di inizio della condizione della query</i>
+	 * @param toAccountingDate <i>data di fine della condizione della query</i>
+	 * @return ResponseEntity<List<Transaction>> <i>la lista delle transazioni recuperate</i>
+	 * metodo richiamato per visualizzare la lista delle transazioni in base ai parametri passati in input
+	 */
 	@GetMapping("/list-transaction")
 	public ResponseEntity<List<Transaction>> getTransactionList(@RequestParam(required = true) Long accountId, 
 												      @RequestParam(required = true) String fromAccountingDate,
