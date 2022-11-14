@@ -11,6 +11,11 @@ import javax.validation.constraints.Size;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Transfer implements Serializable{
 	private static final long serialVersionUID = -6933441095927509618L;

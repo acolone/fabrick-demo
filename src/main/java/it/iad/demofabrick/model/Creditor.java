@@ -9,6 +9,11 @@ import javax.validation.constraints.Size;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Creditor implements Serializable{
 	private static final long serialVersionUID = 2631359289594154854L;

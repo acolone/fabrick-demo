@@ -22,6 +22,11 @@ import it.iad.demofabrick.model.Transaction;
 import it.iad.demofabrick.model.Transfer;
 import it.iad.demofabrick.service.IFabrickService;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @RestController
 @RequestMapping("/fabrick")
 public class DemoFabrickController {

@@ -6,8 +6,15 @@ import it.iad.demofabrick.model.ListTransaction;
 import it.iad.demofabrick.model.Transfer;
 import it.iad.demofabrick.model.TransferResult;
 
+/**
+ * @author acolone
+ * 
+ */
+
 public interface IFabrickService {
 	public Balance readBalance(Long accountId) throws BalanceException;
+	
 	public TransferResult saveTransfer(Long accountId,Transfer transfer) throws BalanceException;
+	
 	public ListTransaction listTransaction(Long accountId, String fromAccountingDate, String toAccountingDate);
 }

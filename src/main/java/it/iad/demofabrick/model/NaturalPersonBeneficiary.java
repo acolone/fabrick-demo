@@ -6,6 +6,11 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class NaturalPersonBeneficiary implements Serializable{
 	private static final long serialVersionUID = 4765225669618199999L;

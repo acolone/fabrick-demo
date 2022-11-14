@@ -5,6 +5,11 @@ import java.util.Map;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class ValidateError {
 	private String status;

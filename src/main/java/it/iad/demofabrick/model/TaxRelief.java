@@ -6,6 +6,11 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class TaxRelief implements Serializable{
 	private static final long serialVersionUID = 707183999343522669L;

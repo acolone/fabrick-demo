@@ -6,6 +6,11 @@ import java.util.Date;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Balance implements Serializable{
 	private static final long serialVersionUID = 7356822865469507505L;

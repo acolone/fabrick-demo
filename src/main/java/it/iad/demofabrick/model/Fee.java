@@ -5,6 +5,11 @@ import java.math.BigDecimal;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Fee implements Serializable{
 	private static final long serialVersionUID = 8416102821964382360L;

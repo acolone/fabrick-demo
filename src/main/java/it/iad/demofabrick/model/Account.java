@@ -6,6 +6,11 @@ import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Account implements Serializable{
 	private static final long serialVersionUID = 7163033598436268049L;

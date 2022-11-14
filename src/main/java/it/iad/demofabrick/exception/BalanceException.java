@@ -2,6 +2,10 @@ package it.iad.demofabrick.exception;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * @author acolone
+ * 
+ */
 
 public class BalanceException extends RuntimeException {
 	private static final long serialVersionUID = -29544484236117427L;

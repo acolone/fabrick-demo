@@ -4,6 +4,11 @@ import java.io.Serializable;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Address implements Serializable{
 	private static final long serialVersionUID = -4127630488958932408L;

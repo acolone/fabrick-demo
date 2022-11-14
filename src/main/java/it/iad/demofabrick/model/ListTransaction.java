@@ -5,6 +5,11 @@ import java.util.List;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class ListTransaction implements Serializable{
 	private static final long serialVersionUID = -541806022603654065L;

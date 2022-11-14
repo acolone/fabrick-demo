@@ -1,5 +1,10 @@
 package it.iad.demofabrick.config;
 
+/**
+ * @author acolone
+ * 
+ */
+
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 

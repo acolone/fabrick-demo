@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 
 import lombok.Data;
 
+/**
+ * @author acolone
+ * 
+ */
+
 @Data
 public class Transaction {
 	private String transactionId;
