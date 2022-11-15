@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +66,7 @@ public class TransferTest {
 
 			Mockito.when(restTemplate.exchange(ArgumentMatchers.contains("transactions"),
 					ArgumentMatchers.same(HttpMethod.GET), ArgumentMatchers.any(HttpEntity.class),
-					ArgumentMatchers.any(ParameterizedTypeReference.class))).thenReturn(responseEntityGetListTransaction);
+					ArgumentMatchers.any(ParameterizedTypeReference.class), ArgumentMatchers.any(Map.class))).thenReturn(responseEntityGetListTransaction);
 		}
 
 		
@@ -107,7 +108,7 @@ public class TransferTest {
 			try {
 				fabrickService.listTransaction(1L,"2022-01-01","2022-04-01");
 			} catch (BalanceException e) {
-				assertThat(e.getErrorCode().equals("204"));
+				assertThat(e.getErrorCode().equals("500"));
 			}
 		}
 	}
