@@ -100,7 +100,7 @@ public class TransferTest {
 
 			Mockito.when(restTemplate.exchange(ArgumentMatchers.contains("transactions"),
 					ArgumentMatchers.same(HttpMethod.GET), ArgumentMatchers.any(HttpEntity.class),
-					ArgumentMatchers.any(ParameterizedTypeReference.class))).thenReturn(responseBodyListTransaction);
+					ArgumentMatchers.any(ParameterizedTypeReference.class), ArgumentMatchers.any(Map.class))).thenReturn(responseBodyListTransaction);
 		}
 		
 		@Test
