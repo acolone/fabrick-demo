@@ -13,6 +13,6 @@ import lombok.Data;
 public class Type implements Serializable {
 	private static final long serialVersionUID = 5319236003175536464L;
 	
-	private String code;
+	private String enumeration;
     private String value;
 }
